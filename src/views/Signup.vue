@@ -1,15 +1,23 @@
 <script setup>
 import { onBeforeUnmount, onBeforeMount } from "vue";
 import { useStore } from "vuex";
-
+import { useApi } from '@/composables/use-api';
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonCheckbox from "@/components/ArgonCheckbox.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
-const body = document.getElementsByTagName("body")[0];
+import Swal from 'sweetalert2'; 
 
+const body = document.getElementsByTagName("body")[0];
 const store = useStore();
+// const router = useRouter();
+
+const name = ref('');
+const email = ref('');
+const password = ref('');
+const errorMessage = ref('');
+// //
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
   store.state.showNavbar = false;
@@ -23,8 +31,40 @@ onBeforeUnmount(() => {
   store.state.showSidenav = true;
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
-});
+})
+
+
+    async function register() {
+      try {
+        const response = await useApi('auth/register','post', {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        });
+        console.log('Registration successful', response);
+
+
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Registro exitoso!',
+          text: 'Ahora puedes iniciar sesión.',
+        });
+
+        // Redirigir al usuario a la página de inicio de sesión
+        this.$router.push('/login');
+      } catch (error) {
+        console.error('Error registering', error);
+
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al registrarse',
+          text: error.response?.data?.message || 'Por favor, inténtalo de nuevo.',
+        });
+      }
+    }
+  
 </script>
+
 <template>
   <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">

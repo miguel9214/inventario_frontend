@@ -1,13 +1,22 @@
 <script setup>
-import { onBeforeUnmount, onBeforeMount } from "vue";
+import { ref, onBeforeUnmount, onBeforeMount } from "vue";
 import { useStore } from "vuex";
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
 import ArgonSwitch from "@/components/ArgonSwitch.vue";
 import ArgonButton from "@/components/ArgonButton.vue";
-const body = document.getElementsByTagName("body")[0];
+import { useApi } from '@/composables/use-api';
+import { useRouter } from "vue-router";
 
+const body = document.getElementsByTagName("body")[0];
 const store = useStore();
+const router = useRouter(); // Para redirección sin `this`
+
+// Estado reactivo para email, password, y mensaje de error
+const email = ref('');
+const password = ref('');
+const errorMessage = ref('');
+
 onBeforeMount(() => {
   store.state.hideConfigButton = true;
   store.state.showNavbar = false;
@@ -15,6 +24,7 @@ onBeforeMount(() => {
   store.state.showFooter = false;
   body.classList.remove("bg-gray-100");
 });
+
 onBeforeUnmount(() => {
   store.state.hideConfigButton = false;
   store.state.showNavbar = true;
@@ -22,14 +32,31 @@ onBeforeUnmount(() => {
   store.state.showFooter = true;
   body.classList.add("bg-gray-100");
 });
+
+async function login() {
+  errorMessage.value = ''; 
+  try {
+    const response = await useApi("auth/login", "POST", {
+      email: email.value,
+      password: password.value,
+    });
+    console.log('Login successful', response);
+    localStorage.setItem('access_token', response.access_token);
+    router.push('/dashboard-default'); // Redirección usando el router directamente
+  } catch (error) {
+    console.error('Error logging in', error);
+    errorMessage.value = 'Credenciales incorrectas. Por favor, inténtalo de nuevo.';
+  }
+}
 </script>
+
 <template>
   <div class="container top-0 position-sticky z-index-sticky">
     <div class="row">
       <div class="col-12">
-        <navbar
-          isBlur="blur  border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow"
-          v-bind:darkMode="true"
+        <Navbar
+          isBlur="blur border-radius-lg my-3 py-2 start-0 end-0 mx-4 shadow"
+          :darkMode="true"
           isBtn="bg-gradient-success"
         />
       </div>
@@ -49,10 +76,11 @@ onBeforeUnmount(() => {
                   <p class="mb-0">Enter your email and password to sign in</p>
                 </div>
                 <div class="card-body">
-                  <form role="form">
+                  <form @submit.prevent="login"> <!-- Manejador de envío de formulario -->
                     <div class="mb-3">
-                      <argon-input
+                      <ArgonInput
                         id="email"
+                        v-model="email"
                         type="email"
                         placeholder="Email"
                         name="email"
@@ -60,28 +88,32 @@ onBeforeUnmount(() => {
                       />
                     </div>
                     <div class="mb-3">
-                      <argon-input
+                      <ArgonInput
                         id="password"
+                        v-model="password"
                         type="password"
                         placeholder="Password"
                         name="password"
                         size="lg"
                       />
                     </div>
-                    <argon-switch id="rememberMe" name="remember-me"
-                      >Remember me</argon-switch
-                    >
-
+                    <ArgonSwitch id="rememberMe" name="remember-me">
+                      Remember me
+                    </ArgonSwitch>
                     <div class="text-center">
-                      <argon-button
+                      <ArgonButton
                         class="mt-4"
                         variant="gradient"
                         color="success"
                         fullWidth
                         size="lg"
-                        >Sign in</argon-button
+                        @click="login"
                       >
+                        Sign in
+                      </ArgonButton>
                     </div>
+                    <!-- Mensaje de error -->
+                    <p v-if="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
                   </form>
                 </div>
                 <div class="px-1 pt-0 text-center card-footer px-lg-2">
@@ -90,8 +122,10 @@ onBeforeUnmount(() => {
                     <a
                       href="javascript:;"
                       class="text-success text-gradient font-weight-bold"
-                      >Sign up</a
                     >
+                    <router-link to="/signup">Regístrate aquí</router-link>  
+                    </a>
+                    
                   </p>
                 </div>
               </div>
@@ -101,15 +135,10 @@ onBeforeUnmount(() => {
             >
               <div
                 class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
-                style="
-                  background-image: url(&quot;https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg&quot;);
-                  background-size: cover;
-                "
+                style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg'); background-size: cover;"
               >
                 <span class="mask bg-gradient-success opacity-6"></span>
-                <h4
-                  class="mt-5 text-white font-weight-bolder position-relative"
-                >
+                <h4 class="mt-5 text-white font-weight-bolder position-relative">
                   "Attention is the new currency"
                 </h4>
                 <p class="text-white position-relative">
