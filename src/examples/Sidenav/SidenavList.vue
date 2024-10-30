@@ -25,13 +25,41 @@ const getRoute = () => {
         <sidenav-item
           to="/dashboard-default"
           :class="getRoute() === 'dashboard-default' ? 'active' : ''"
-          :navText="isRTL ? 'لوحة القيادة' : 'Dashboard'"
+          :navText="isRTL ? 'لوحة القيادة' : 'Inicio'"
         >
           <template v-slot:icon>
             <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
           </template>
         </sidenav-item>
       </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          to="/tables"
+          :class="getRoute() === 'tables' ? 'active' : ''"
+          :navText="isRTL ? 'الجداول' : 'Equipos'"
+        >
+          <template v-slot:icon>
+            <i
+              class="ni ni-laptop-grid-58 text-warning text-sm opacity-10"
+            ></i>
+          </template>
+        </sidenav-item>
+      </li>
+      <li class="nav-item">
+        <sidenav-item
+          to="/tables"
+          :class="getRoute() === 'tables' ? 'active' : ''"
+          :navText="isRTL ? 'الجداول' : 'Dependencias'"
+        >
+          <template v-slot:icon>
+            <i
+              class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
+            ></i>
+          </template>
+        </sidenav-item>
+      </li>
+
 
       <li class="nav-item">
         <sidenav-item
@@ -46,6 +74,21 @@ const getRoute = () => {
           </template>
         </sidenav-item>
       </li>
+
+      <li class="nav-item">
+        <sidenav-item
+          to="/tables"
+          :class="getRoute() === 'tables' ? 'active' : ''"
+          :navText="isRTL ? 'الجداول' : 'Equipos'"
+        >
+          <template v-slot:icon>
+            <i
+              class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
+            ></i>
+          </template>
+        </sidenav-item>
+      </li>
+
 
       <li class="nav-item">
         <sidenav-item

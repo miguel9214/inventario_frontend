@@ -1,7 +1,9 @@
 <script setup>
-import { onBeforeUnmount, onBeforeMount } from "vue";
+import { ref, onBeforeUnmount, onBeforeMount } from "vue";
 import { useStore } from "vuex";
 import { useApi } from '@/composables/use-api';
+import { useRouter } from "vue-router";
+
 import Navbar from "@/examples/PageLayout/Navbar.vue";
 import AppFooter from "@/examples/PageLayout/Footer.vue";
 import ArgonInput from "@/components/ArgonInput.vue";
@@ -11,7 +13,7 @@ import Swal from 'sweetalert2';
 
 const body = document.getElementsByTagName("body")[0];
 const store = useStore();
-// const router = useRouter();
+const router = useRouter();
 
 const name = ref('');
 const email = ref('');
@@ -35,13 +37,14 @@ onBeforeUnmount(() => {
 
 
     async function register() {
+      errorMessage.value = ''; 
       try {
-        const response = await useApi('auth/register','post', {
-          name: this.name,
-          email: this.email,
-          password: this.password,
+        const response = await useApi('auth/register','POST', {
+          name: name.value,
+          email: email.value,
+          password: password.value,
         });
-        console.log('Registration successful', response);
+        console.log('Registro correcto', response);
 
 
         await Swal.fire({
@@ -51,7 +54,7 @@ onBeforeUnmount(() => {
         });
 
         // Redirigir al usuario a la página de inicio de sesión
-        this.$router.push('/login');
+        router.push('/signin');
       } catch (error) {
         console.error('Error registering', error);
 
@@ -210,24 +213,30 @@ onBeforeUnmount(() => {
               </div>
             </div>
             <div class="card-body">
-              <form role="form">
+              <form @submit.prevent="register">
                 <argon-input
                   id="name"
+                  v-model="name"
                   type="text"
                   placeholder="Name"
                   aria-label="Name"
+                  name="name"
                 />
                 <argon-input
                   id="email"
+                   v-model="email"
                   type="email"
                   placeholder="Email"
                   aria-label="Email"
+                  name="email"
                 />
                 <argon-input
                   id="password"
+                  v-model="password"
                   type="password"
                   placeholder="Password"
                   aria-label="Password"
+                  name="password"
                 />
                 <argon-checkbox checked>
                   <label class="form-check-label" for="flexCheckDefault">

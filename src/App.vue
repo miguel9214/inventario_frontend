@@ -1,6 +1,6 @@
 <!--
 =========================================================
-* Vue Argon Dashboard 2 - v4.0.0
+* Vue Inventario equipos - v4.0.0
 =========================================================
 
 * Product Page: https://creative-tim.com/product/vue-argon-dashboard
