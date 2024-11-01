@@ -9,20 +9,29 @@ import { useApi } from "@/composables/use-api";
 // const router = useRouter();
 
 const equipments = ref([]);
+const currentPage = ref([1]);
+const totalPages = ref([1]);
 
-const fectchEquipment = async () => {
+const fetchEquipment = async (page = 1) => {
   try {
-    const response = await useApi("equipment");
-    equipments.value = response.equipments;
-    console.log(equipments);
+    const response = await useApi(`equipment?page=${page}`);
+    equipments.value = response.equipments.data;
+    currentPage.value = response.equipments.current_page;
+    totalPages.value = response.equipments.last_page;
   } catch (error) {
     console.error("Error al cargar los equipos");
   }
 };
 
 onMounted(() => {
-  fectchEquipment();
+  fetchEquipment();
 });
+
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    fetchEquipment(page);
+  }
+};
 </script>
 
 <template>
@@ -30,8 +39,8 @@ onMounted(() => {
     <div class="card-header pb-0">
       <h6>Listado de equipos</h6>
     </div>
-    <div class="card-body px-0 pt-0 pb-2">
-      <div class="table-responsive p-0">
+    <div class="card-body px-0 pt-0 pb-2 table-scroll">
+      <div class="table-responsive p-0 table-scroll">
         <table class="table align-items-center mb-0">
           <thead>
             <tr>
@@ -142,7 +151,11 @@ onMounted(() => {
             <tr v-if="!equipments.length">
               <td colspan="3">Cargando equipos...</td>
             </tr>
-            <tr v-else v-for="(equipment, index) in equipments" :key="equipment.id">
+            <tr
+              v-else
+              v-for="(equipment, index) in equipments"
+              :key="equipment.id"
+            >
               <td class="align-middle text-center">
                 {{ index + 1 }}
               </td>
@@ -241,7 +254,6 @@ onMounted(() => {
                   equipment.scannerFixedAsset
                 }}</span>
               </td>
-              
 
               <td class="align-middle">
                 <a
@@ -255,7 +267,56 @@ onMounted(() => {
             </tr>
           </tbody>
         </table>
+        <div
+          class="pagination d-flex align-items-center justify-content-center mt-3"
+        >
+          <button
+            @click="goToPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+          >
+            Anterior
+          </button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button
+            @click="goToPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.pagination button {
+  background-color: #4e73df; /* Color primario */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 50px; /* Bordes redondeados */
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin: 0 5px;
+  box-shadow: 0 4px 8px rgba(78, 115, 223, 0.3); /* Sombra suave */
+}
+
+.pagination button:disabled {
+  background-color: #e0e0e0;
+  color: #7a7a7a;
+  cursor: not-allowed;
+  box-shadow: none; /* Sin sombra cuando está deshabilitado */
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #375ab5; /* Color de hover */
+  box-shadow: 0px 6px 12px rgba(78, 115, 223, 0.5); /* Sombra más intensa en hover */
+}
+
+.pagination span {
+  font-weight: bold;
+  color: #4e73df;
+}
+
+</style>
