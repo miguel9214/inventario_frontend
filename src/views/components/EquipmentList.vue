@@ -1,29 +1,28 @@
 <script setup>
-import { ref, onMounted} from "vue";
+import { ref, onMounted } from "vue";
 // import { useStore } from "vuex";
-import { useApi } from '@/composables/use-api';
+import { useApi } from "@/composables/use-api";
 // import { useRouter } from "vue-router";
 
 // const body = document.getElementsByTagName("body")[0];
 // const store = useStore();
 // const router = useRouter();
 
-
 const equipments = ref([]);
 
 const fectchEquipment = async () => {
   try {
-    const response = await useApi('equipment');
-    equipments.value = response.data;
+    const response = await useApi("equipment");
+    equipments.value = response.equipments;
+    console.log(equipments);
   } catch (error) {
-    console.error('Error al cargar los equipos')
+    console.error("Error al cargar los equipos");
   }
-}
+};
 
-onMounted(()=>{
+onMounted(() => {
   fectchEquipment();
-})
-
+});
 </script>
 
 <template>
@@ -36,6 +35,11 @@ onMounted(()=>{
         <table class="table align-items-center mb-0">
           <thead>
             <tr>
+              <th
+                class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
+              >
+                #
+              </th>
               <th
                 class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7"
               >
@@ -135,18 +139,109 @@ onMounted(()=>{
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(equipment, index) in equipments" :key="equipment.id"  >
+            <tr v-if="!equipments.length">
+              <td colspan="3">Cargando equipos...</td>
+            </tr>
+            <tr v-else v-for="(equipment, index) in equipments" :key="equipment.id">
               <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >{{ index+1 }}</span
-                >
+                {{ index + 1 }}
               </td>
               <td class="align-middle text-center">
-                <span class="text-secondary text-xs font-weight-bold"
-                  >{{ equipment.property }}</span
-                >
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.property
+                }}</span>
               </td>
-
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.dependence_id
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.equipmentName
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.os
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.officePackage
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.brand
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.brand
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.cpu
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.hdd
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.ram
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.ip
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.mac
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.serial
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.fixedAsset
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.anydesk
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.printer
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.printerFixedAsset
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.scanner
+                }}</span>
+              </td>
+              <td class="align-middle text-center">
+                <span class="text-secondary text-xs font-weight-bold">{{
+                  equipment.scannerFixedAsset
+                }}</span>
+              </td>
+              
 
               <td class="align-middle">
                 <a
