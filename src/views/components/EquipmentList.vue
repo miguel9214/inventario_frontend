@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 // import { useStore } from "vuex";
 import { useApi } from "@/composables/use-api";
+import Swal from "sweetalert2";
 // import { useRouter } from "vue-router";
 
 // const body = document.getElementsByTagName("body")[0];
@@ -11,10 +12,13 @@ import { useApi } from "@/composables/use-api";
 const equipments = ref([]);
 const currentPage = ref([1]);
 const totalPages = ref([1]);
+const itemsPerPage = 15;
 
 const fetchEquipment = async (page = 1) => {
   try {
-    const response = await useApi(`equipment?page=${page}`);
+    const response = await useApi(
+      `equipment?page=${page}&itemsPerPage=${itemsPerPage}`
+    );
     equipments.value = response.equipments.data;
     currentPage.value = response.equipments.current_page;
     totalPages.value = response.equipments.last_page;
@@ -22,6 +26,24 @@ const fetchEquipment = async (page = 1) => {
     console.error("Error al cargar los equipos");
   }
 };
+
+const deleteEquipment = async (id) => {
+  try {
+    await useApi(`equipment/${id}`, "DELETE"); // Realizamos la petición DELETE
+    // Filtramos el equipo eliminado de la lista local
+    equipments.value = equipments.value.filter(
+      (equipment) => equipment.id !== id
+    );
+    Swal.fire(
+      "Eliminado!",
+      "El equipo ha sido eliminado ha sido eliminado.",
+      "success"
+    );
+  } catch (error) {
+    Swal.fire("Error", "No se pudo eliminar el asistente", "error");
+  }
+};
+
 
 onMounted(() => {
   fetchEquipment();
@@ -32,6 +54,12 @@ const goToPage = (page) => {
     fetchEquipment(page);
   }
 };
+
+const calculateIndex = (index) => {
+  return (currentPage.value - 1) * itemsPerPage + index + 1;
+};
+
+
 </script>
 
 <template>
@@ -156,9 +184,7 @@ const goToPage = (page) => {
               v-for="(equipment, index) in equipments"
               :key="equipment.id"
             >
-              <td class="align-middle text-center">
-                {{ index + 1 }}
-              </td>
+              <td>{{ calculateIndex(index) }}</td>
               <td class="align-middle text-center">
                 <span class="text-secondary text-xs font-weight-bold">{{
                   equipment.property
@@ -264,6 +290,7 @@ const goToPage = (page) => {
                   >Edit</a
                 >
               </td>
+              <td><button class="btn btn-danger btn-sm" @click="deleteEquipment(equipment.id)">Eliminar</button></td>
             </tr>
           </tbody>
         </table>
@@ -318,5 +345,4 @@ const goToPage = (page) => {
   font-weight: bold;
   color: #4e73df;
 }
-
 </style>
