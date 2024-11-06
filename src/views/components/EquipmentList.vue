@@ -1,18 +1,15 @@
 <script setup>
 import { ref, onMounted } from "vue";
-// import { useStore } from "vuex";
+import Modal from "../components/Modal.vue";
 import { useApi } from "@/composables/use-api";
 import Swal from "sweetalert2";
-// import { useRouter } from "vue-router";
-
-// const body = document.getElementsByTagName("body")[0];
-// const store = useStore();
-// const router = useRouter();
 
 const equipments = ref([]);
 const currentPage = ref([1]);
 const totalPages = ref([1]);
 const itemsPerPage = 15;
+const isModalVisible = ref(false); // Estado para el modal
+const selectedEquipment = ref(null); // Equipo seleccionado para editar
 
 const fetchEquipment = async (page = 1) => {
   try {
@@ -44,6 +41,25 @@ const deleteEquipment = async (id) => {
   }
 };
 
+const saveChanges = async () => {
+  try {
+    await useApi(
+      `equipment/${selectedEquipment.value.id}`,
+      "PUT",
+      selectedEquipment.value
+    );
+    Swal.fire("Guardado!", "El equipo ha sido actualizado.", "success");
+    closeModal();
+    fetchEquipment(currentPage.value); // Refresca la lista de equipos
+  } catch (error) {
+    Swal.fire("Error", "No se pudo actualizar el equipo", "error");
+  }
+};
+
+const openModal = (equipment) => {
+  selectedEquipment.value = equipment; // Asigna el equipo seleccionado
+  isModalVisible.value = true; // Muestra el modal
+};
 
 onMounted(() => {
   fetchEquipment();
@@ -58,8 +74,6 @@ const goToPage = (page) => {
 const calculateIndex = (index) => {
   return (currentPage.value - 1) * itemsPerPage + index + 1;
 };
-
-
 </script>
 
 <template>
@@ -290,7 +304,10 @@ const calculateIndex = (index) => {
                   >Edit</a
                 >
               </td>
-              <td><button class="btn btn-danger btn-sm" @click="deleteEquipment(equipment.id)">Eliminar</button></td>
+              <td>
+                <button class="btn btn-primary btn-sm" @click="openModal(equipment)">Editar</button>
+                <button class="btn btn-danger btn-sm" @click="deleteEquipment(equipment.id)">Eliminar</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -314,6 +331,21 @@ const calculateIndex = (index) => {
       </div>
     </div>
   </div>
+
+  <Modal :isVisible="isModalVisible" title="Editar equipo" @close="closeModal">
+    <div v-if="selectedEquipment">
+      <label>Nombre del equipo</label>
+      <input
+        v-model="selectedEquipment.equipmentName"
+        type="text"
+        class="form-control"
+      />
+      <!-- Agrega más campos de edición según necesites -->
+      <button class="btn btn-success mt-3" @click="saveChanges">
+        Guardar cambios
+      </button>
+    </div>
+  </Modal>
 </template>
 
 <style scoped>
